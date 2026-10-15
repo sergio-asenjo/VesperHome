@@ -1,7 +1,6 @@
 package com.sergioasenjo.vesperhome.launcher
 
 import android.os.Bundle
-import android.os.Looper
 import android.view.KeyEvent
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,13 +56,10 @@ class LauncherActivity : AppCompatActivity() {
     private lateinit var releaseUpdateController: ReleaseUpdateController
     private lateinit var settingsActionController: LauncherSettingsActionController
     private lateinit var stateRenderer: LauncherStateRenderer
-    private lateinit var musicController: JellyfinMusicController
     private lateinit var liveTvController: LiveTvController
     private lateinit var settingsHost: LauncherSettingsHost
     private var settingsPanelPageToRestore: LauncherSettingsPanelPage? = null
     private var launcherInitialized = false
-    private var musicInitialized = false
-    private var preserveMusicOnStop = false
     private val backActionGuard = LauncherBackActionGuard()
     private val settingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -75,9 +71,6 @@ class LauncherActivity : AppCompatActivity() {
     }
     private val viewModel: LauncherViewModel by viewModels {
         launcherViewModelFactory(application as VesperHomeApplication)
-    }
-    private val musicViewModel: JellyfinMusicViewModel by viewModels {
-        jellyfinMusicViewModelFactory(application as VesperHomeApplication)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -187,8 +180,6 @@ class LauncherActivity : AppCompatActivity() {
             activity = this,
             scope = lifecycleScope,
             repository = container.profileRepository,
-            settingsRepository = container.launcherSettingsRepository,
-            currentSettings = { viewModel.uiState.value.toLauncherSettings() },
             currentAppearance = { viewModel.uiState.value.appearance },
             onDismissed = { binding.openLauncherSettings.requestFocus() }
         )
@@ -229,7 +220,7 @@ class LauncherActivity : AppCompatActivity() {
         )
         onBackPressedDispatcher.addCallback(this) {
             if (liveTvController.handleBack()) return@addCallback
-            if (backActionGuard.consumeIntentionalBack()) preserveMusicOnStop = screensaverController.handleBack()
+            if (backActionGuard.consumeIntentionalBack()) screensaverController.handleBack()
         }
         settingsPanelPageToRestore = restoredSettingsPage(savedInstanceState)
 
@@ -274,7 +265,6 @@ class LauncherActivity : AppCompatActivity() {
             profileController = profileController,
             releaseUpdateController = releaseUpdateController,
             currentSettingsPanel = { settingsHost.panel },
-            currentMusicController = { if (::musicController.isInitialized) musicController else null },
             currentLiveTvController = { liveTvController },
             showSettingsPanel = settingsHost::show,
             initialPageToRestore = settingsPanelPageToRestore
@@ -292,39 +282,11 @@ class LauncherActivity : AppCompatActivity() {
             }
         }
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) viewModel.refreshHomeStatus()
-        Looper.myQueue().addIdleHandler {
-            initializeMusic()
-            false
-        }
-    }
-
-    private fun initializeMusic() {
-        if (musicInitialized || isFinishing || isDestroyed) return
-        musicInitialized = true
-        val container = (application as VesperHomeApplication).container
-        musicController = JellyfinMusicController(
-            this,
-            contentBinding,
-            musicViewModel,
-            container.upcomingRepository,
-            container.networkStatusRepository
-        ) {
-            viewModel.uiState.value.let { it.appearance.forWallpaper(it.wallpaper) }
-        }
-        viewModel.uiState.value.let { state ->
-            musicController.setSectionVisibility(state.showJellyfinMusic, state.showComingNext)
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                musicController.collectState()
-            }
-        }
     }
 
     override fun onResume() {
         super.onResume()
         backActionGuard.onResume()
-        musicViewModel.onHostStarted()
         if (::notificationController.isInitialized) notificationController.refreshPermissions()
         if (::brightnessController.isInitialized) {
             brightnessController.onResume()
@@ -342,9 +304,7 @@ class LauncherActivity : AppCompatActivity() {
 
     override fun onStop() {
         backActionGuard.onStop()
-        if (musicInitialized && !preserveMusicOnStop) musicController.onHostStopped()
         liveTvController.onHostStopped()
-        preserveMusicOnStop = false
         super.onStop()
     }
 
@@ -365,7 +325,6 @@ class LauncherActivity : AppCompatActivity() {
         aboutController.release()
         profileController.release()
         releaseUpdateController.release()
-        if (::musicController.isInitialized) musicController.release()
         liveTvController.release()
         super.onDestroy()
     }

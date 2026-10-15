@@ -119,16 +119,6 @@
         </service>
 
         <service
-            android:name=".music.JellyfinPlaybackService"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-                <action android:name="android.media.browse.MediaBrowserService" />
-            </intent-filter>
-        </service>
-
-        <service
             android:name=".notifications.LauncherNotificationListenerService"
             android:exported="true"
             android:label="@string/notification_listener_name"

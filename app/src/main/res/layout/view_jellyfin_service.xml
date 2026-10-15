@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"
         android:letterSpacing="0.16"
-        android:text="@string/playback_integration"
+        android:text="@string/jellyfin_connection"
         android:textAllCaps="true"
         android:textColor="@color/accent"
         android:textSize="11sp"
@@ -136,19 +136,6 @@
             android:visibility="gone" />
 
     </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/normalization"
-        android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:layout_marginTop="10dp"
-        android:backgroundTint="@color/action_button_background"
-        android:gravity="start|center_vertical"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:paddingHorizontal="17dp"
-        android:textColor="@color/action_button_text"
-        app:cornerRadius="9dp" />
 
     <TextView
         android:id="@+id/quickConnectCode"

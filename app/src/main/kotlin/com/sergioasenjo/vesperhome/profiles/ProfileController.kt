@@ -7,8 +7,6 @@ import android.widget.EditText
 import android.widget.Toast
 import com.sergioasenjo.vesperhome.R
 import com.sergioasenjo.vesperhome.settings.LauncherAppearance
-import com.sergioasenjo.vesperhome.settings.LauncherSettings
-import com.sergioasenjo.vesperhome.settings.LauncherSettingsRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -17,8 +15,6 @@ class ProfileController(
     private val activity: Activity,
     private val scope: CoroutineScope,
     private val repository: ProfileRepository,
-    private val settingsRepository: LauncherSettingsRepository,
-    private val currentSettings: () -> LauncherSettings,
     private val currentAppearance: () -> LauncherAppearance,
     onDismissed: () -> Unit
 ) {
@@ -27,20 +23,18 @@ class ProfileController(
     private val panel = ProfilePanel(
         activity,
         onCreate = { showNameDialog(R.string.create_profile, ::createProfile) },
-        onToggleComingNext = ::toggleComingNext,
-        onToggleJellyfinMusic = ::toggleJellyfinMusic,
         onSelected = ::showActions,
         onDismissed = onDismissed
     )
 
     fun show() {
-        panel.show(state, currentSettings(), busy = true, currentAppearance())
+        panel.show(state, busy = true, currentAppearance())
         runOperation(successMessage = null) { repository.ensureInitialized() }
     }
 
-    fun render(settings: LauncherSettings, appearance: LauncherAppearance) {
+    fun render(appearance: LauncherAppearance) {
         state = repository.state.value
-        if (panel.isShowing) panel.render(state, settings, busy, appearance)
+        if (panel.isShowing) panel.render(state, busy, appearance)
     }
 
     fun release() {
@@ -98,18 +92,6 @@ class ProfileController(
             .show()
     }
 
-    private fun toggleComingNext() {
-        runOperation(successMessage = null) {
-            settingsRepository.setShowComingNext(!currentSettings().showComingNext)
-        }
-    }
-
-    private fun toggleJellyfinMusic() {
-        runOperation(successMessage = null) {
-            settingsRepository.setShowJellyfinMusic(!currentSettings().showJellyfinMusic)
-        }
-    }
-
     private fun showNameDialog(titleRes: Int, onAccepted: (String) -> Unit) {
         val input = EditText(activity).apply {
             hint = activity.getString(R.string.profile_name)
@@ -127,7 +109,7 @@ class ProfileController(
     private fun runOperation(successMessage: Int?, operation: suspend () -> Unit) {
         if (busy) return
         busy = true
-        render(currentSettings(), currentAppearance())
+        render(currentAppearance())
         scope.launch {
             try {
                 operation()
@@ -139,7 +121,7 @@ class ProfileController(
                 showMessage(R.string.profile_operation_failed)
             } finally {
                 busy = false
-                render(currentSettings(), currentAppearance())
+                render(currentAppearance())
             }
         }
     }

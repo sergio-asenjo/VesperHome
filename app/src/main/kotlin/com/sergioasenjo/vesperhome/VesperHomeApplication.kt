@@ -55,7 +55,6 @@ class AppContainer(application: Application) {
     val homeRepository: HomeRepository = PlatformHomeRepository(application)
     val launcherSettingsRepository = LauncherSettingsRepository(application)
     val systemScreensaverRepository = SystemScreensaverRepository(application)
-    val dreamStateTracker = DreamStateTracker(application)
     val wallpaperRepository = WallpaperRepository(application)
     val networkStatusRepository = NetworkStatusRepository(application)
     val tvInputRepository = TvInputRepository(application)

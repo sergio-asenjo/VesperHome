@@ -51,8 +51,6 @@ data class LauncherUiState(
     val screensaver: ScreensaverSettings = ScreensaverSettings(),
     val brightness: BrightnessSettings = BrightnessSettings(),
     val wallpaper: WallpaperState = WallpaperState(),
-    val showComingNext: Boolean = true,
-    val showJellyfinMusic: Boolean = true,
     val isDefaultLauncher: Boolean? = null,
     val loading: Boolean = true
 ) {
@@ -264,14 +262,6 @@ class LauncherViewModel(
 
     fun setBrightness(period: BrightnessPeriod, percentage: Int) {
         updatePreference { launcherSettingsRepository.setBrightness(period, percentage) }
-    }
-
-    fun setShowComingNext(show: Boolean) {
-        updatePreference { launcherSettingsRepository.setShowComingNext(show) }
-    }
-
-    fun setShowJellyfinMusic(show: Boolean) {
-        updatePreference { launcherSettingsRepository.setShowJellyfinMusic(show) }
     }
 
     fun setTimeBasedWallpaperEnabled(enabled: Boolean) {

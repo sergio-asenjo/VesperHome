@@ -83,9 +83,7 @@ internal data class SettingsBackup(
     val brightnessEvening: Int,
     val brightnessNight: Int,
     val screensaverStartDelay: String = ScreensaverStartDelay.MINUTES_10.name,
-    val screensaverStandbyDelay: String = ScreensaverStandbyDelay.MINUTES_30.name,
-    val showComingNext: Boolean = true,
-    val showJellyfinMusic: Boolean = true
+    val screensaverStandbyDelay: String = ScreensaverStandbyDelay.MINUTES_30.name
 )
 
 @Serializable
@@ -246,9 +244,7 @@ private fun LauncherSettings.toBackup(): SettingsBackup = SettingsBackup(
     brightness.eveningPercentage,
     brightness.nightPercentage,
     screensaver.startDelay.name,
-    screensaver.standbyDelay.name,
-    showComingNext,
-    showJellyfinMusic
+    screensaver.standbyDelay.name
 )
 
 private fun SettingsBackup.toDomain(): LauncherSettings {
@@ -298,9 +294,7 @@ private fun SettingsBackup.toDomain(): LauncherSettings {
             brightnessAfternoon,
             brightnessEvening,
             brightnessNight
-        ),
-        showComingNext = showComingNext,
-        showJellyfinMusic = showJellyfinMusic
+        )
     )
 }
 

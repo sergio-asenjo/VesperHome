@@ -28,8 +28,7 @@ class LiveTvController(
     private val launcherBinding: ActivityLauncherBinding,
     private val repository: LiveTvPluginRepository,
     private val preferences: LiveTvPreferencesRepository,
-    private val currentAppearance: () -> LauncherAppearance,
-    private val onPlaybackStarting: () -> Unit
+    private val currentAppearance: () -> LauncherAppearance
 ) {
     private val channelAdapter = LiveTvChannelAdapter(::playChannel) { position, event ->
         channelNavigator?.onKey(position, event) ?: false
@@ -187,7 +186,6 @@ class LiveTvController(
     private fun playChannel(channel: LiveTvChannel) {
         val view = ensureBinding()
         stopCurrentPlayback()
-        onPlaybackStarting()
         selectedChannel = channel
         lastChannel = LastLiveTvChannel(channel.plugin, channel.id)
         activity.lifecycleScope.launch { preferences.setLastChannel(channel) }

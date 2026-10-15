@@ -2,7 +2,6 @@ package com.sergioasenjo.vesperhome.music
 
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -18,15 +17,12 @@ import kotlinx.coroutines.launch
 class JellyfinSetupActivity : AppCompatActivity() {
     private lateinit var binding: ActivityJellyfinSetupBinding
     private lateinit var appearanceRenderer: MediaServicesAppearanceRenderer
-    private var serviceFieldsInitialized = false
     private val viewModel: JellyfinSetupViewModel by viewModels {
         val container = (application as VesperHomeApplication).container
         JellyfinSetupViewModel.factory(
             container.jellyfinDiscoveryRepository,
             container.jellyfinApiRepository,
-            container.jellyfinPreferencesRepository,
-            container.upcomingRepository,
-            container.upcomingPreferencesRepository
+            container.jellyfinPreferencesRepository
         )
     }
 
@@ -49,18 +45,7 @@ class JellyfinSetupActivity : AppCompatActivity() {
             viewModel.connectManually(jellyfin.serverUrl.text.toString())
         }
         jellyfin.disconnect.setOnClickListener { viewModel.disconnect() }
-        jellyfin.normalization.setOnClickListener { showNormalizationPicker() }
-        binding.sonarrPage.configure(getString(R.string.sonarr), getString(R.string.sonarr_setup_description))
-        binding.radarrPage.configure(getString(R.string.radarr), getString(R.string.radarr_setup_description))
-        binding.sonarrPage.setOnSaveClick {
-            viewModel.saveSonarr(binding.sonarrPage.url, binding.sonarrPage.apiKey)
-        }
-        binding.radarrPage.setOnSaveClick {
-            viewModel.saveRadarr(binding.radarrPage.url, binding.radarrPage.apiKey)
-        }
         binding.showJellyfin.setOnClickListener { showPage(ServicePage.JELLYFIN) }
-        binding.showSonarr.setOnClickListener { showPage(ServicePage.SONARR) }
-        binding.showRadarr.setOnClickListener { showPage(ServicePage.RADARR) }
         showPage(ServicePage.JELLYFIN)
         binding.showJellyfin.post { binding.showJellyfin.requestFocus() }
 
@@ -87,26 +72,9 @@ class JellyfinSetupActivity : AppCompatActivity() {
                             getString(R.string.jellyfin_ready, it)
                         }.orEmpty()
                         jellyfin.disconnect.isVisible = state.connectedServerName != null
-                        jellyfin.normalization.text = getString(
-                            R.string.jellyfin_normalization_value,
-                            getString(state.normalizationMode.labelRes)
-                        )
                         jellyfin.error.isVisible = state.errorRes != null
                         jellyfin.error.text = state.errorRes?.let(::getString).orEmpty()
                         jellyfin.servers.isVisible = state.servers.isNotEmpty()
-                        state.serviceConfig?.takeIf { !serviceFieldsInitialized }?.let { config ->
-                            serviceFieldsInitialized = true
-                            binding.sonarrPage.setValues(config.sonarrUrl, config.sonarrApiKey)
-                            binding.radarrPage.setValues(config.radarrUrl, config.radarrApiKey)
-                        }
-                        binding.sonarrPage.render(
-                            state.savingSonarr,
-                            serviceStatus(state.sonarrStatusRes, state.serviceConfig?.sonarrConfigured == true)
-                        )
-                        binding.radarrPage.render(
-                            state.savingRadarr,
-                            serviceStatus(state.radarrStatusRes, state.serviceConfig?.radarrConfigured == true)
-                        )
                         serverAdapter.submitList(state.servers) {
                             if (state.servers.isNotEmpty() && currentFocus == null) {
                                 jellyfin.servers.findViewHolderForAdapterPosition(0)?.itemView?.requestFocus()
@@ -120,40 +88,10 @@ class JellyfinSetupActivity : AppCompatActivity() {
 
     private fun showPage(page: ServicePage) {
         binding.jellyfinPage.root.isVisible = page == ServicePage.JELLYFIN
-        binding.sonarrPage.isVisible = page == ServicePage.SONARR
-        binding.radarrPage.isVisible = page == ServicePage.RADARR
         binding.showJellyfin.isSelected = page == ServicePage.JELLYFIN
-        binding.showSonarr.isSelected = page == ServicePage.SONARR
-        binding.showRadarr.isSelected = page == ServicePage.RADARR
-    }
-
-    private fun serviceStatus(statusRes: Int?, configured: Boolean): String =
-        statusRes?.let(::getString) ?: if (configured) getString(R.string.media_service_configured) else ""
-
-    private fun showNormalizationPicker() {
-        val modes = JellyfinNormalizationMode.entries
-        AlertDialog.Builder(this)
-            .setTitle(R.string.jellyfin_normalization)
-            .setSingleChoiceItems(
-                modes.map { getString(it.labelRes) }.toTypedArray(),
-                modes.indexOf(viewModel.uiState.value.normalizationMode)
-            ) { dialog, index ->
-                viewModel.setNormalizationMode(modes[index])
-                dialog.dismiss()
-            }
-            .show()
     }
 
     private enum class ServicePage {
-        JELLYFIN,
-        SONARR,
-        RADARR
+        JELLYFIN
     }
 }
-
-private val JellyfinNormalizationMode.labelRes: Int
-    get() = when (this) {
-        JellyfinNormalizationMode.OFF -> R.string.jellyfin_normalization_off
-        JellyfinNormalizationMode.TRACK -> R.string.jellyfin_normalization_track
-        JellyfinNormalizationMode.ALBUM -> R.string.jellyfin_normalization_album
-    }

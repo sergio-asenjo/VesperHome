@@ -9,11 +9,9 @@ import com.sergioasenjo.vesperhome.databinding.ActivityLauncherBinding
 import com.sergioasenjo.vesperhome.databinding.ViewLauncherContentBinding
 import com.sergioasenjo.vesperhome.inputs.TvInputController
 import com.sergioasenjo.vesperhome.livetv.LiveTvController
-import com.sergioasenjo.vesperhome.music.JellyfinMusicController
 import com.sergioasenjo.vesperhome.notifications.NotificationController
 import com.sergioasenjo.vesperhome.profiles.ProfileController
 import com.sergioasenjo.vesperhome.screensaver.ScreensaverController
-import com.sergioasenjo.vesperhome.settings.LauncherSettings
 import com.sergioasenjo.vesperhome.settings.LauncherSettingsPanel
 import com.sergioasenjo.vesperhome.settings.LauncherSettingsPanelPage
 import com.sergioasenjo.vesperhome.status.StatusBarController
@@ -37,7 +35,6 @@ internal class LauncherStateRenderer(
     private val profileController: ProfileController,
     private val releaseUpdateController: ReleaseUpdateController,
     private val currentSettingsPanel: () -> LauncherSettingsPanel?,
-    private val currentMusicController: () -> JellyfinMusicController?,
     private val currentLiveTvController: () -> LiveTvController?,
     private val showSettingsPanel: (LauncherUiState, LauncherSettingsPanelPage) -> Unit,
     initialPageToRestore: LauncherSettingsPanelPage?
@@ -71,7 +68,7 @@ internal class LauncherStateRenderer(
         notificationController.render(state.statusBar, homeAppearance, state.appearance)
         backupController.renderAppearance()
         aboutController.renderAppearance()
-        profileController.render(state.toLauncherSettings(), state.appearance)
+        profileController.render(state.appearance)
         releaseUpdateController.renderAppearance()
         wallpaperRenderer.render(state.wallpaper, state.appearance.palette)
         contentRenderer.render(state.copy(appearance = homeAppearance))
@@ -92,13 +89,3 @@ internal class LauncherStateRenderer(
         }
     }
 }
-
-internal fun LauncherUiState.toLauncherSettings(): LauncherSettings = LauncherSettings(
-    applicationSortMode = applicationSortMode,
-    appearance = appearance,
-    statusBar = statusBar,
-    screensaver = screensaver,
-    brightness = brightness,
-    showComingNext = showComingNext,
-    showJellyfinMusic = showJellyfinMusic
-)
