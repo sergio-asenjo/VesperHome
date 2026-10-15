@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipChildren="false"
+    android:clipChildren="true"
+    android:clipToPadding="true"
     android:fillViewport="true"
     android:scrollbars="none">
 
@@ -13,173 +14,104 @@
         android:clipChildren="false"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/jellyfinPanel"
+        <com.sergioasenjo.vesperhome.applications.AppRowView
+            android:id="@+id/applicationsRow"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/hdmiInputsSection"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="14dp"
             android:layout_marginEnd="48dp"
-            android:layout_marginBottom="@dimen/launcher_section_gap"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-            <ImageView
-                android:id="@+id/musicArtwork"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@color/action_button_background"
-                android:contentDescription="@string/music_artwork"
-                android:focusable="false"
-                android:padding="9dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_music" />
-
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/hdmiInputOne"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="12dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
+                android:backgroundTint="@color/hdmi_input_card_background"
+                android:ellipsize="end"
                 android:gravity="center_vertical"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/musicTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:fontFamily="sans-serif-medium"
-                    android:maxLines="1"
-                    android:maxWidth="420dp"
-                    android:text="@string/jellyfin_music"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/musicArtist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:maxWidth="420dp"
-                    android:text="@string/jellyfin_not_connected"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-
-            </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/musicLoading"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="12dp"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/musicLibrary"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="14dp"
-                android:backgroundTint="@color/action_button_background"
-                android:contentDescription="@string/choose_music"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:maxLines="1"
                 android:minWidth="0dp"
-                android:padding="0dp"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/action_button_text"
+                android:textSize="13sp"
                 android:visibility="gone"
                 app:cornerRadius="8dp"
-                app:icon="@drawable/ic_music_library"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/action_button_text" />
+                app:icon="@drawable/ic_input"
+                app:iconPadding="8dp"
+                app:iconSize="16dp"
+                app:iconTint="@color/action_button_text"
+                app:strokeColor="@color/hdmi_input_card_stroke"
+                app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/musicPrevious"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:backgroundTint="@color/action_button_background"
-                android:contentDescription="@string/previous_track"
+                android:id="@+id/hdmiInputTwo"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/hdmi_input_card_background"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:maxLines="1"
                 android:minWidth="0dp"
-                android:padding="0dp"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/action_button_text"
+                android:textSize="13sp"
                 android:visibility="gone"
                 app:cornerRadius="8dp"
-                app:icon="@drawable/ic_previous"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/action_button_text" />
+                app:icon="@drawable/ic_input"
+                app:iconPadding="8dp"
+                app:iconSize="16dp"
+                app:iconTint="@color/action_button_text"
+                app:strokeColor="@color/hdmi_input_card_stroke"
+                app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/musicPlayPause"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:backgroundTint="@color/action_button_background"
-                android:contentDescription="@string/play"
+                android:id="@+id/hdmiInputThree"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/hdmi_input_card_background"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:maxLines="1"
                 android:minWidth="0dp"
-                android:padding="0dp"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/action_button_text"
+                android:textSize="13sp"
                 android:visibility="gone"
                 app:cornerRadius="8dp"
-                app:icon="@drawable/ic_play"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/action_button_text" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/musicNext"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:backgroundTint="@color/action_button_background"
-                android:contentDescription="@string/next_track"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minWidth="0dp"
-                android:padding="0dp"
-                android:visibility="gone"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_next"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/action_button_text" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/musicRandom"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="6dp"
-                android:backgroundTint="@color/action_button_background"
-                android:contentDescription="@string/random_next"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minWidth="0dp"
-                android:padding="0dp"
-                android:visibility="gone"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_shuffle"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/action_button_text" />
+                app:icon="@drawable/ic_input"
+                app:iconPadding="8dp"
+                app:iconSize="16dp"
+                app:iconTint="@color/action_button_text"
+                app:strokeColor="@color/hdmi_input_card_stroke"
+                app:strokeWidth="1dp" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/upcomingSection"
+            android:id="@+id/showsSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="48dp"
             android:layout_marginBottom="@dimen/launcher_section_gap"
             android:clipChildren="false"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -188,26 +120,25 @@
                 android:orientation="horizontal">
 
                 <View
-                    android:id="@+id/upcomingAccent"
                     android:layout_width="7dp"
                     android:layout_height="7dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/accent_tick" />
 
                 <TextView
-                    android:id="@+id/upcomingTitle"
+                    android:id="@+id/showsTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
                     android:letterSpacing="0.14"
-                    android:text="@string/coming_next"
+                    android:text="@string/shows"
                     android:textAllCaps="true"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/upcomingCount"
+                    android:id="@+id/showsCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="9dp"
@@ -217,15 +148,24 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/showsEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/jellyfin_series_empty"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/upcomingItems"
+                android:id="@+id/showsItems"
                 android:layout_width="match_parent"
                 android:layout_height="82dp"
                 android:layout_marginTop="@dimen/launcher_section_content_gap"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:focusable="false"
-                android:overScrollMode="never" />
+                android:overScrollMode="never"
+                android:scrollbars="none" />
 
         </LinearLayout>
 
@@ -241,11 +181,6 @@
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:orientation="vertical" />
-
-        <com.sergioasenjo.vesperhome.applications.AppRowView
-            android:id="@+id/applicationsRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
     </LinearLayout>
 </ScrollView>

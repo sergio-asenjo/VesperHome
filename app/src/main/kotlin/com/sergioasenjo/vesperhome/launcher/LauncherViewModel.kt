@@ -18,6 +18,10 @@ import com.sergioasenjo.vesperhome.categories.LauncherSection
 import com.sergioasenjo.vesperhome.categories.LauncherSpacer
 import com.sergioasenjo.vesperhome.data.CategoryRepository
 import com.sergioasenjo.vesperhome.data.LauncherCategoryDefinition
+import com.sergioasenjo.vesperhome.music.JellyfinApiRepository
+import com.sergioasenjo.vesperhome.music.JellyfinCredentials
+import com.sergioasenjo.vesperhome.music.JellyfinPreferencesRepository
+import com.sergioasenjo.vesperhome.music.JellyfinShowsState
 import com.sergioasenjo.vesperhome.platform.HomeRepository
 import com.sergioasenjo.vesperhome.screensaver.BackButtonAction
 import com.sergioasenjo.vesperhome.screensaver.ScreensaverClockStyle
@@ -26,16 +30,17 @@ import com.sergioasenjo.vesperhome.screensaver.ScreensaverStandbyDelay
 import com.sergioasenjo.vesperhome.screensaver.ScreensaverStartDelay
 import com.sergioasenjo.vesperhome.settings.LauncherAppearance
 import com.sergioasenjo.vesperhome.settings.LauncherSettingsRepository
-import com.sergioasenjo.vesperhome.settings.LauncherTheme
 import com.sergioasenjo.vesperhome.status.StatusBarSettings
 import com.sergioasenjo.vesperhome.wallpaper.BuiltInWallpaper
 import com.sergioasenjo.vesperhome.wallpaper.WallpaperRepository
 import com.sergioasenjo.vesperhome.wallpaper.WallpaperState
 import com.sergioasenjo.vesperhome.wallpaper.WallpaperTarget
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -44,6 +49,7 @@ import kotlinx.coroutines.launch
 data class LauncherUiState(
     val favoriteApps: List<LauncherApp> = emptyList(),
     val apps: List<LauncherApp> = emptyList(),
+    val jellyfinShows: JellyfinShowsState = JellyfinShowsState(),
     val sections: List<LauncherSection> = emptyList(),
     val applicationSortMode: ApplicationSortMode = ApplicationSortMode.MANUAL,
     val appearance: LauncherAppearance = LauncherAppearance(),
@@ -72,11 +78,33 @@ class LauncherViewModel(
     private val categoryRepository: CategoryRepository,
     private val homeRepository: HomeRepository,
     private val launcherSettingsRepository: LauncherSettingsRepository,
-    private val wallpaperRepository: WallpaperRepository
+    private val wallpaperRepository: WallpaperRepository,
+    private val jellyfinApiRepository: JellyfinApiRepository,
+    private val jellyfinPreferencesRepository: JellyfinPreferencesRepository
 ) : ViewModel() {
     private val eventsChannel = Channel<LauncherEvent>(Channel.BUFFERED)
     val events = eventsChannel.receiveAsFlow()
     private val isDefaultLauncher = MutableStateFlow<Boolean?>(null)
+    private val mutableJellyfinShows = MutableStateFlow(JellyfinShowsState())
+    private var jellyfinCredentials: JellyfinCredentials? = null
+    private var jellyfinSeriesOffset = 0
+    private var jellyfinSeriesLoadJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            jellyfinPreferencesRepository.credentials.collect { credentials ->
+                jellyfinSeriesLoadJob?.cancel()
+                jellyfinCredentials = credentials
+                jellyfinSeriesOffset = 0
+                mutableJellyfinShows.value = JellyfinShowsState(
+                    connected = credentials != null,
+                    loading = credentials != null,
+                    hasMore = credentials != null
+                )
+                credentials?.let(::loadNextJellyfinSeriesPage)
+            }
+        }
+    }
 
     private val appState = combine(
         managedApplicationsRepository.observeApplications(),
@@ -103,13 +131,11 @@ class LauncherViewModel(
             screensaver = settings.screensaver,
             brightness = settings.brightness,
             wallpaper = wallpaper,
-            showComingNext = settings.showComingNext,
-            showJellyfinMusic = settings.showJellyfinMusic,
             loading = false
         )
     }
-    val uiState = combine(appState, isDefaultLauncher) { state, isDefault ->
-        state.copy(isDefaultLauncher = isDefault)
+    val uiState = combine(appState, isDefaultLauncher, mutableJellyfinShows) { state, isDefault, shows ->
+        state.copy(isDefaultLauncher = isDefault, jellyfinShows = shows)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),
@@ -136,6 +162,42 @@ class LauncherViewModel(
 
     fun refreshHomeStatus() {
         isDefaultLauncher.value = homeRepository.isDefaultLauncher()
+    }
+
+    fun loadMoreJellyfinSeries() {
+        val credentials = jellyfinCredentials ?: return
+        val state = mutableJellyfinShows.value
+        if (state.loading || (!state.hasMore && !state.failed)) return
+        loadNextJellyfinSeriesPage(credentials)
+    }
+
+    private fun loadNextJellyfinSeriesPage(credentials: JellyfinCredentials) {
+        val startIndex = jellyfinSeriesOffset
+        mutableJellyfinShows.value = mutableJellyfinShows.value.copy(loading = true, failed = false)
+        jellyfinSeriesLoadJob = viewModelScope.launch {
+            try {
+                val page = jellyfinApiRepository.series(credentials, startIndex, SERIES_PAGE_SIZE)
+                if (jellyfinCredentials != credentials) return@launch
+                jellyfinSeriesOffset += page.series.size
+                val hasMore = if (page.totalRecordCount > 0) {
+                    jellyfinSeriesOffset < page.totalRecordCount
+                } else {
+                    page.series.size == SERIES_PAGE_SIZE
+                }
+                mutableJellyfinShows.value = mutableJellyfinShows.value.copy(
+                    series = mutableJellyfinShows.value.series + page.series,
+                    totalRecordCount = page.totalRecordCount,
+                    loading = false,
+                    hasMore = hasMore
+                )
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                if (jellyfinCredentials == credentials) {
+                    mutableJellyfinShows.value = mutableJellyfinShows.value.copy(loading = false, failed = true)
+                }
+            }
+        }
     }
 
     fun requestDefaultLauncher() {
@@ -331,12 +393,16 @@ class LauncherViewModel(
     }
 
     companion object {
+        private const val SERIES_PAGE_SIZE = 14
+
         fun factory(
             managedApplicationsRepository: ManagedApplicationsRepository,
             categoryRepository: CategoryRepository,
             homeRepository: HomeRepository,
             launcherSettingsRepository: LauncherSettingsRepository,
-            wallpaperRepository: WallpaperRepository
+            wallpaperRepository: WallpaperRepository,
+            jellyfinApiRepository: JellyfinApiRepository,
+            jellyfinPreferencesRepository: JellyfinPreferencesRepository
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 LauncherViewModel(
@@ -344,7 +410,9 @@ class LauncherViewModel(
                     categoryRepository,
                     homeRepository,
                     launcherSettingsRepository,
-                    wallpaperRepository
+                    wallpaperRepository,
+                    jellyfinApiRepository,
+                    jellyfinPreferencesRepository
                 )
             }
         }

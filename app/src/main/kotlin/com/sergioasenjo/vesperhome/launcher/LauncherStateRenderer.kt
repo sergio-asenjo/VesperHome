@@ -23,6 +23,7 @@ internal class LauncherStateRenderer(
     private val binding: ActivityLauncherBinding,
     private val contentBinding: ViewLauncherContentBinding,
     private val contentRenderer: LauncherContentRenderer,
+    private val jellyfinShowsController: JellyfinShowsController,
     private val wallpaperRenderer: WallpaperRenderer,
     private val brightnessController: BrightnessController,
     private val screensaverController: ScreensaverController,
@@ -56,11 +57,8 @@ internal class LauncherStateRenderer(
             state.brightness,
             brightnessController.hasPermission()
         )
-        val homeAppearance = state.appearance.forWallpaper(state.wallpaper)
-        currentMusicController()?.let { controller ->
-            controller.setAppearance(homeAppearance)
-            controller.setSectionVisibility(state.showJellyfinMusic, state.showComingNext)
-        }
+        val homeAppearance = state.appearance
+        jellyfinShowsController.render(state.jellyfinShows, homeAppearance)
         currentLiveTvController()?.setAppearance(homeAppearance)
         renderLauncherAppearance(binding, contentBinding, homeAppearance)
         statusBarController.render(state.statusBar, homeAppearance)

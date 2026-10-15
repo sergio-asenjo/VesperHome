@@ -10,16 +10,8 @@ internal fun launcherViewModelFactory(application: VesperHomeApplication): ViewM
         container.categoryRepository,
         container.homeRepository,
         container.launcherSettingsRepository,
-        container.wallpaperRepository
-    )
-}
-
-internal fun jellyfinMusicViewModelFactory(application: VesperHomeApplication): ViewModelProvider.Factory {
-    val container = application.container
-    return JellyfinMusicViewModel.factory(
-        application,
-        { container.jellyfinApiRepository },
-        container.jellyfinPreferencesRepository,
-        container.dreamStateTracker
+        container.wallpaperRepository,
+        container.jellyfinApiRepository,
+        container.jellyfinPreferencesRepository
     )
 }

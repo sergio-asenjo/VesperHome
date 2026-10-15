@@ -43,145 +43,56 @@ class JellyfinApiRepository(
         body = json.encodeToString(QuickConnectRequest(secret))
     )
 
-    suspend fun randomTrack(credentials: JellyfinCredentials): JellyfinTrack {
-        val result: JellyfinItemsResult = execute(
+    suspend fun series(credentials: JellyfinCredentials, startIndex: Int, limit: Int): JellyfinSeriesPage {
+        val result: JellyfinSeriesResult = execute(
             credentials.baseUrl,
             "Items",
             token = credentials.accessToken,
             query = mapOf(
                 "userId" to credentials.userId,
-                "includeItemTypes" to "Audio",
-                "recursive" to "true",
-                "sortBy" to "Random",
-                "limit" to "1",
-                "enableImages" to "true"
-            )
-        )
-        val item = result.Items.firstOrNull() ?: throw IOException("The Jellyfin library contains no audio items")
-        return item.toTrack(credentials)
-    }
-
-    suspend fun musicCollections(credentials: JellyfinCredentials): List<JellyfinMusicCollection> {
-        val result: JellyfinLibraryItemsResult = execute(
-            credentials.baseUrl,
-            "Items",
-            token = credentials.accessToken,
-            query = mapOf(
-                "userId" to credentials.userId,
-                "includeItemTypes" to "Playlist,MusicAlbum",
+                "includeItemTypes" to "Series",
                 "recursive" to "true",
                 "sortBy" to "SortName",
                 "sortOrder" to "Ascending",
-                "fields" to "ChildCount,RecursiveItemCount",
+                "startIndex" to startIndex.toString(),
+                "limit" to limit.toString(),
+                "fields" to "PrimaryImageAspectRatio,ProductionYear,EndDate,Status",
                 "enableImages" to "true",
                 "imageTypeLimit" to "1",
                 "enableImageTypes" to "Primary"
             )
         )
-        return result.Items.map { item ->
-            JellyfinMusicCollection(
+        val series = result.Items.map { item ->
+            val imageUrl = item.ImageTags[PRIMARY_IMAGE_TYPE]?.let { tag ->
+                seriesImageUrl(credentials, item.Id, PRIMARY_IMAGE_TYPE, tag)
+            }
+            val endYear = item.EndDate?.substringBefore('-')?.toIntOrNull()
+            JellyfinSeries(
                 id = item.Id,
                 name = item.Name,
-                trackCount = item.ChildCount ?: item.RecursiveItemCount ?: 0,
-                artworkUrl = item.ImageTags["Primary"]?.let { tag -> imageUrl(credentials, item.Id, tag, 480) },
-                type = if (item.Type == "Playlist") JellyfinCollectionType.PLAYLIST else JellyfinCollectionType.ALBUM
+                imageUrl = imageUrl,
+                imageAspectRatio = item.PrimaryImageAspectRatio,
+                productionYear = item.ProductionYear,
+                endYear = endYear,
+                continuing = item.Status == CONTINUING_STATUS
             )
-        }.sortedWith(compareBy(JellyfinMusicCollection::type, { it.name.lowercase() }))
-    }
-
-    suspend fun collectionTracks(
-        credentials: JellyfinCredentials,
-        collection: JellyfinMusicCollection
-    ): List<JellyfinTrack> {
-        val path: String
-        val query: Map<String, String>
-        when (collection.type) {
-            JellyfinCollectionType.PLAYLIST -> {
-                path = "Playlists/${collection.id}/Items"
-                query = mediaQuery(credentials)
-            }
-
-            JellyfinCollectionType.ALBUM -> {
-                path = "Items"
-                query = mediaQuery(credentials) + mapOf(
-                    "parentId" to collection.id,
-                    "includeItemTypes" to "Audio",
-                    "recursive" to "true",
-                    "sortBy" to "ParentIndexNumber,IndexNumber,SortName",
-                    "sortOrder" to "Ascending"
-                )
-            }
         }
-        val result: JellyfinItemsResult = execute(
-            credentials.baseUrl,
-            path,
-            token = credentials.accessToken,
-            query = query
-        )
-        return result.Items
-            .filter { it.MediaType == null || it.MediaType.equals("Audio", ignoreCase = true) }
-            .map { it.toTrack(credentials) }
+        return JellyfinSeriesPage(series, result.TotalRecordCount)
     }
 
-    suspend fun itemIdByProvider(
+    private fun seriesImageUrl(
         credentials: JellyfinCredentials,
-        provider: String,
-        providerId: Int,
-        itemType: String
-    ): String? {
-        val result: JellyfinLibraryItemsResult = execute(
-            credentials.baseUrl,
-            "Items",
-            token = credentials.accessToken,
-            query = mapOf(
-                "userId" to credentials.userId,
-                "recursive" to "true",
-                "includeItemTypes" to itemType,
-                "fields" to "ProviderIds",
-                "enableImages" to "false"
-            )
-        )
-        return result.Items.firstOrNull { item ->
-            item.ProviderIds.entries.any { (name, value) ->
-                name.equals(provider, ignoreCase = true) && value == providerId.toString()
-            }
-        }?.Id
-    }
-
-    private fun mediaQuery(credentials: JellyfinCredentials): Map<String, String> = mapOf(
-        "userId" to credentials.userId,
-        "fields" to "PrimaryImageAspectRatio,RunTimeTicks",
-        "enableImages" to "true",
-        "imageTypeLimit" to "1",
-        "enableImageTypes" to "Primary"
-    )
-
-    private fun JellyfinAudioItem.toTrack(credentials: JellyfinCredentials): JellyfinTrack {
-        val streamUrl = authenticatedUrl(credentials, "Audio/$Id/stream", mapOf("static" to "true"))
-        val imageId = if (ImageTags["Primary"] != null) Id else AlbumId
-        val imageTag = ImageTags["Primary"] ?: AlbumPrimaryImageTag
-        val artworkUrl = imageId?.let { id -> imageTag?.let { tag -> id to tag } }?.let { (id, tag) ->
-            imageUrl(credentials, id, tag, 512)
-        }
-        return JellyfinTrack(
-            id = Id,
-            title = Name,
-            artist = Artists.joinToString().ifBlank { AlbumArtist.orEmpty() },
-            album = Album,
-            streamUrl = streamUrl,
-            artworkUrl = artworkUrl,
-            durationMillis = RunTimeTicks?.div(TICKS_PER_MILLISECOND),
-            trackGainDb = NormalizationGain,
-            albumGainDb = AlbumNormalizationGain
-        )
-    }
-
-    private fun imageUrl(credentials: JellyfinCredentials, itemId: String, tag: String, maxWidth: Int): String =
-        authenticatedUrl(
-            credentials,
-            "Items/$itemId/Images/Primary",
-            mapOf("tag" to tag, "maxWidth" to maxWidth.toString(), "quality" to "90")
-        )
+        seriesId: String,
+        imageType: String,
+        tag: String
+    ): String = credentials.baseUrl.toHttpUrl().newBuilder()
+        .addPathSegments("Items/$seriesId/Images/$imageType")
+        .addQueryParameter("tag", tag)
+        .addQueryParameter("maxWidth", SERIES_IMAGE_WIDTH.toString())
+        .addQueryParameter("quality", IMAGE_QUALITY.toString())
+        .addQueryParameter("api_key", credentials.accessToken)
+        .build()
+        .toString()
 
     private suspend inline fun <reified T> execute(
         baseUrl: String,
@@ -217,23 +128,16 @@ class JellyfinApiRepository(
         }
     }
 
-    private fun authenticatedUrl(credentials: JellyfinCredentials, path: String, query: Map<String, String>): String =
-        credentials.baseUrl.toHttpUrl().newBuilder()
-            .addPathSegments(path)
-            .apply {
-                query.forEach { (name, value) -> addQueryParameter(name, value) }
-                addQueryParameter("api_key", credentials.accessToken)
-            }
-            .build()
-            .toString()
-
     private enum class HttpMethod {
         GET,
         POST
     }
 
     private companion object {
-        const val TICKS_PER_MILLISECOND = 10_000L
+        const val SERIES_IMAGE_WIDTH = 480
+        const val PRIMARY_IMAGE_TYPE = "Primary"
+        const val CONTINUING_STATUS = "Continuing"
+        const val IMAGE_QUALITY = 90
         val JSON_MEDIA_TYPE = "application/json".toMediaType()
     }
 }

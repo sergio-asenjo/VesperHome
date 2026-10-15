@@ -18,10 +18,10 @@ import com.sergioasenjo.vesperhome.backup.BackupController
 import com.sergioasenjo.vesperhome.brightness.BrightnessController
 import com.sergioasenjo.vesperhome.databinding.ActivityLauncherBinding
 import com.sergioasenjo.vesperhome.databinding.ViewLauncherContentBinding
+import com.sergioasenjo.vesperhome.inputs.HdmiInputCardsController
 import com.sergioasenjo.vesperhome.inputs.TvInputController
 import com.sergioasenjo.vesperhome.livetv.LiveTvController
-import com.sergioasenjo.vesperhome.music.JellyfinMusicController
-import com.sergioasenjo.vesperhome.music.JellyfinMusicViewModel
+import com.sergioasenjo.vesperhome.music.JellyfinSeries
 import com.sergioasenjo.vesperhome.notifications.NotificationController
 import com.sergioasenjo.vesperhome.profiles.ProfileController
 import com.sergioasenjo.vesperhome.screensaver.ScreensaverController
@@ -38,8 +38,8 @@ import kotlinx.coroutines.launch
 
 class LauncherActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLauncherBinding
-    private lateinit var contentBinding: ViewLauncherContentBinding
     private lateinit var contentRenderer: LauncherContentRenderer
+    private lateinit var jellyfinShowsController: JellyfinShowsController
     private lateinit var wallpaperRenderer: WallpaperRenderer
     private lateinit var wallpaperSettingsCoordinator: WallpaperSettingsCoordinator
     private lateinit var appActionsController: AppActionsController
@@ -145,8 +145,7 @@ class LauncherActivity : AppCompatActivity() {
             binding,
             container.liveTvPluginRepository,
             container.liveTvPreferencesRepository,
-            { viewModel.uiState.value.appearance.forWallpaper(viewModel.uiState.value.wallpaper) },
-            { if (::musicController.isInitialized) musicController.onHostStopped() }
+            { viewModel.uiState.value.appearance }
         ).also(LiveTvController::start)
         tvInputController = TvInputController(this, binding, container.tvInputRepository)
         notificationController = NotificationController(
@@ -236,7 +235,18 @@ class LauncherActivity : AppCompatActivity() {
     private fun initializeLauncher() {
         if (launcherInitialized) return
         launcherInitialized = true
-        contentBinding = ViewLauncherContentBinding.bind(binding.launcherContentStub.inflate())
+        val contentBinding = ViewLauncherContentBinding.bind(binding.launcherContentStub.inflate())
+        HdmiInputCardsController(
+            this,
+            contentBinding,
+            (application as VesperHomeApplication).container.tvInputRepository
+        )
+        jellyfinShowsController = JellyfinShowsController(
+            context = this,
+            binding = contentBinding,
+            onSeriesClick = ::openJellyfinTv,
+            onLoadMore = viewModel::loadMoreJellyfinSeries
+        )
         contentRenderer = LauncherContentRenderer(
             context = this,
             binding = contentBinding,
@@ -253,6 +263,7 @@ class LauncherActivity : AppCompatActivity() {
             binding = binding,
             contentBinding = contentBinding,
             contentRenderer = contentRenderer,
+            jellyfinShowsController = jellyfinShowsController,
             wallpaperRenderer = wallpaperRenderer,
             brightnessController = brightnessController,
             screensaverController = screensaverController,
@@ -333,11 +344,19 @@ class LauncherActivity : AppCompatActivity() {
         backActionGuard.onKeyEvent(event, hasWindowFocus())
         if (liveTvController.onKeyEvent(event)) return true
         if (::statusBarController.isInitialized && statusBarController.onKeyEvent(event)) return true
-        if (::musicController.isInitialized && musicController.onKeyEvent(event)) return true
         return super.dispatchKeyEvent(event)
     }
 
     private fun handleWallpaperAction(action: WallpaperSettingsAction) = wallpaperSettingsCoordinator.handle(action)
+
+    private fun openJellyfinTv(series: JellyfinSeries) {
+        val launchIntent = packageManager.getLaunchIntentForPackage(JELLYFIN_TV_PACKAGE)
+        if (launchIntent == null) {
+            showMessage(R.string.jellyfin_tv_not_installed)
+        } else {
+            startActivity(launchIntent)
+        }
+    }
 
     private fun handleStatusBarAction(action: StatusBarSettingsAction) {
         if (!notificationController.handleSettingsAction(action)) statusBarController.handleSettingsAction(action)
@@ -352,5 +371,9 @@ class LauncherActivity : AppCompatActivity() {
 
     private fun protectAppManagement(action: () -> Unit) {
         pinController.authorizeAppManagement(action)
+    }
+
+    private companion object {
+        const val JELLYFIN_TV_PACKAGE = "org.jellyfin.androidtv"
     }
 }

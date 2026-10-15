@@ -16,8 +16,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipChildren="false"
-        android:clipToPadding="false"
+        android:clipChildren="true"
+        android:clipToPadding="true"
         android:orientation="vertical"
         android:paddingStart="48dp"
         android:paddingTop="26dp"
@@ -178,14 +178,22 @@
 
         </LinearLayout>
 
-        <ViewStub
-            android:id="@+id/launcherContentStub"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="18dp"
             android:layout_weight="1"
-            android:inflatedId="@+id/launcherContent"
-            android:layout="@layout/view_launcher_content" />
+            android:clipChildren="true"
+            android:clipToPadding="true">
+
+            <ViewStub
+                android:id="@+id/launcherContentStub"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inflatedId="@+id/launcherContent"
+                android:layout="@layout/view_launcher_content" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

@@ -41,7 +41,7 @@ class LauncherContentRenderer(
 
     init {
         configureRow(binding.favoriteRow, favoriteAppAdapter, context.getString(R.string.favorites))
-        configureRow(binding.applicationsRow, appAdapter, context.getString(R.string.applications))
+        configureRow(binding.applicationsRow, appAdapter, context.getString(R.string.apps))
     }
 
     fun render(state: LauncherUiState) {

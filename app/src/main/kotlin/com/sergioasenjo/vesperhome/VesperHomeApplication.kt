@@ -2,6 +2,10 @@ package com.sergioasenjo.vesperhome
 
 import android.app.Application
 import androidx.room.Room
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.disk.DiskCache
+import coil3.memory.MemoryCache
 import com.sergioasenjo.vesperhome.about.DiagnosticsRepository
 import com.sergioasenjo.vesperhome.applications.ApplicationRepository
 import com.sergioasenjo.vesperhome.applications.ManagedApplicationsRepository
@@ -22,22 +26,41 @@ import com.sergioasenjo.vesperhome.notifications.NotificationRepository
 import com.sergioasenjo.vesperhome.platform.HomeRepository
 import com.sergioasenjo.vesperhome.platform.PlatformHomeRepository
 import com.sergioasenjo.vesperhome.profiles.ProfileRepository
-import com.sergioasenjo.vesperhome.screensaver.DreamStateTracker
 import com.sergioasenjo.vesperhome.screensaver.SystemScreensaverRepository
 import com.sergioasenjo.vesperhome.security.PinRepository
 import com.sergioasenjo.vesperhome.settings.LauncherSettingsRepository
 import com.sergioasenjo.vesperhome.status.NetworkStatusRepository
-import com.sergioasenjo.vesperhome.upcoming.UpcomingPreferencesRepository
-import com.sergioasenjo.vesperhome.upcoming.UpcomingRepository
-import com.sergioasenjo.vesperhome.upcoming.UpcomingServerConfig
 import com.sergioasenjo.vesperhome.update.ReleaseUpdateRepository
 import com.sergioasenjo.vesperhome.wallpaper.WallpaperRepository
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
+import okio.Path.Companion.toPath
 
-class VesperHomeApplication : Application() {
+class VesperHomeApplication :
+    Application(),
+    SingletonImageLoader.Factory {
+    override fun newImageLoader(context: android.content.Context): ImageLoader = ImageLoader.Builder(context)
+        .memoryCache {
+            MemoryCache.Builder()
+                .maxSizePercent(context, IMAGE_MEMORY_CACHE_PERCENT)
+                .build()
+        }
+        .diskCache {
+            DiskCache.Builder()
+                .directory(context.cacheDir.resolve(IMAGE_DISK_CACHE_DIRECTORY).absolutePath.toPath())
+                .maxSizePercent(IMAGE_DISK_CACHE_PERCENT)
+                .build()
+        }
+        .build()
+
     val container: AppContainer by lazy {
         AppContainer(this)
+    }
+
+    private companion object {
+        const val IMAGE_MEMORY_CACHE_PERCENT = 0.2
+        const val IMAGE_DISK_CACHE_PERCENT = 0.08
+        const val IMAGE_DISK_CACHE_DIRECTORY = "launcher_images"
     }
 }
 

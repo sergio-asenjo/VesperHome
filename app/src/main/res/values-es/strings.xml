@@ -203,6 +203,17 @@
     <string name="setting_on">Activado</string>
     <string name="setting_off">Desactivado</string>
     <string name="applications">Aplicaciones</string>
+    <string name="apps">Aplicaciones</string>
+    <string name="shows">Series</string>
+    <string name="jellyfin_series_empty">Conecta Jellyfin en los ajustes para ver tus series.</string>
+    <string name="jellyfin_series_none">No se encontraron series en este servidor Jellyfin.</string>
+    <string name="jellyfin_series_loading">Cargando series…</string>
+    <string name="jellyfin_series_load_failed">No se pudieron cargar las series. Selecciona para reintentar.</string>
+    <string name="series_card_label">Serie</string>
+    <string name="series_year">%1$d</string>
+    <string name="series_year_range">%1$d - %2$d</string>
+    <string name="series_year_current">%1$d - Actualidad</string>
+    <string name="jellyfin_tv_not_installed">Instala Jellyfin para Android TV para abrir una serie.</string>
     <string name="integrations">Integraciones</string>
     <string name="system">Sistema</string>
     <string name="sort_applications_value">Orden de aplicaciones: %1$s</string>

@@ -30,68 +30,39 @@ data class AuthenticationResult(val User: JellyfinUser, val AccessToken: String,
 @Serializable
 data class JellyfinUser(val Id: String, val Name: String)
 
-@Serializable
-data class JellyfinItemsResult(val Items: List<JellyfinAudioItem> = emptyList())
-
-@Serializable
-data class JellyfinLibraryItemsResult(val Items: List<JellyfinLibraryItem> = emptyList())
-
-@Serializable
-data class JellyfinLibraryItem(
-    val Id: String,
-    val Name: String,
-    val Type: String,
-    val ChildCount: Int? = null,
-    val RecursiveItemCount: Int? = null,
-    val ImageTags: Map<String, String> = emptyMap(),
-    val ProviderIds: Map<String, String> = emptyMap()
-)
-
-@Serializable
-data class JellyfinAudioItem(
-    val Id: String,
-    val Name: String,
-    val Artists: List<String> = emptyList(),
-    val AlbumArtist: String? = null,
-    val Album: String? = null,
-    val AlbumId: String? = null,
-    val AlbumPrimaryImageTag: String? = null,
-    val ImageTags: Map<String, String> = emptyMap(),
-    val MediaType: String? = null,
-    val RunTimeTicks: Long? = null,
-    val NormalizationGain: Double? = null,
-    val AlbumNormalizationGain: Double? = null
-)
-
 data class JellyfinCredentials(val baseUrl: String, val accessToken: String, val userId: String, val serverName: String)
 
-data class JellyfinTrack(
-    val id: String,
-    val title: String,
-    val artist: String,
-    val album: String?,
-    val streamUrl: String,
-    val artworkUrl: String?,
-    val durationMillis: Long? = null,
-    val trackGainDb: Double? = null,
-    val albumGainDb: Double? = null
+@Serializable
+data class JellyfinSeriesResult(val Items: List<JellyfinSeriesItem> = emptyList(), val TotalRecordCount: Int = 0)
+
+@Serializable
+data class JellyfinSeriesItem(
+    val Id: String,
+    val Name: String,
+    val ImageTags: Map<String, String> = emptyMap(),
+    val PrimaryImageAspectRatio: Double? = null,
+    val ProductionYear: Int? = null,
+    val EndDate: String? = null,
+    val Status: String? = null
 )
 
-enum class JellyfinNormalizationMode {
-    OFF,
-    TRACK,
-    ALBUM
-}
-
-enum class JellyfinCollectionType {
-    PLAYLIST,
-    ALBUM
-}
-
-data class JellyfinMusicCollection(
+data class JellyfinSeries(
     val id: String,
     val name: String,
-    val trackCount: Int,
-    val artworkUrl: String?,
-    val type: JellyfinCollectionType
+    val imageUrl: String?,
+    val imageAspectRatio: Double?,
+    val productionYear: Int?,
+    val endYear: Int?,
+    val continuing: Boolean
 )
+
+data class JellyfinShowsState(
+    val connected: Boolean = false,
+    val series: List<JellyfinSeries> = emptyList(),
+    val totalRecordCount: Int = 0,
+    val loading: Boolean = false,
+    val hasMore: Boolean = false,
+    val failed: Boolean = false
+)
+
+data class JellyfinSeriesPage(val series: List<JellyfinSeries>, val totalRecordCount: Int)
