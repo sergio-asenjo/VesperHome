@@ -5,12 +5,12 @@
     <color name="text_primary">#F4F6FE</color>
     <color name="text_secondary">#9BA3B8</color>
     <color name="text_focused">#FFFFFF</color>
-    <color name="card_background">#66070A12</color>
-    <color name="settings_panel_background">#FA0E0B1C</color>
+    <color name="card_background">#000000</color>
+    <color name="settings_panel_background">#000000</color>
     <color name="badge">#F5445D</color>
-    <color name="launcher_background_start">#191436</color>
-    <color name="launcher_background_center">#0C0D1A</color>
-    <color name="launcher_background_end">#05060B</color>
-    <color name="dialog_surface">#151927</color>
-    <color name="dialog_surface_high">#1B2032</color>
+    <color name="launcher_background_start">#000000</color>
+    <color name="launcher_background_center">#000000</color>
+    <color name="launcher_background_end">#000000</color>
+    <color name="dialog_surface">#000000</color>
+    <color name="dialog_surface_high">#000000</color>
 </resources>

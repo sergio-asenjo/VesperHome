@@ -29,9 +29,3 @@ internal val ApplicationSortMode.labelRes: Int
         ApplicationSortMode.ALPHABETICAL -> R.string.sort_alphabetical
         ApplicationSortMode.LAST_USED -> R.string.sort_last_used
     }
-
-internal val LauncherTheme.labelRes: Int
-    get() = when (this) {
-        LauncherTheme.DARK -> R.string.theme_dark
-        LauncherTheme.LIGHT -> R.string.theme_light
-    }

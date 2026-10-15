@@ -1,15 +1,9 @@
 package com.sergioasenjo.vesperhome.launcher
 
 import com.sergioasenjo.vesperhome.settings.AppearanceSettingAction
-import com.sergioasenjo.vesperhome.settings.LauncherTheme
-
 fun LauncherViewModel.handleAppearanceAction(action: AppearanceSettingAction) {
     val appearance = uiState.value.appearance
     when (action) {
-        AppearanceSettingAction.THEME -> setTheme(
-            if (appearance.theme == LauncherTheme.DARK) LauncherTheme.LIGHT else LauncherTheme.DARK
-        )
-
         AppearanceSettingAction.SHOW_APP_NAMES -> setShowAppNames(!appearance.showAppNames)
 
         AppearanceSettingAction.SHOW_CATEGORY_TITLES -> setShowCategoryTitles(!appearance.showCategoryTitles)

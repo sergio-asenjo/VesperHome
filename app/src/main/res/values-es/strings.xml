@@ -194,9 +194,6 @@
     <string name="restricted_device_guide_title">Guía ADB para dispositivos restringidos</string>
     <string name="restricted_device_guide">Usa estos comandos alternativos solo cuando la pantalla correspondiente de ajustes de Android no esté disponible.&#10;&#10;Corrección del botón Inicio:&#10;%1$s&#10;&#10;Acceso a notificaciones:&#10;%2$s&#10;&#10;Acceso de superposición:&#10;%3$s&#10;&#10;Acceso al brillo del sistema:&#10;%4$s</string>
     <string name="appearance_description">Pulsa Seleccionar para cambiar un ajuste. Pulsa Atrás para volver a los ajustes del lanzador.</string>
-    <string name="theme_value">Tema: %1$s</string>
-    <string name="theme_dark">Oscuro</string>
-    <string name="theme_light">Claro</string>
     <string name="show_app_names_value">Nombres de aplicaciones: %1$s</string>
     <string name="show_category_titles_value">Títulos de categorías: %1$s</string>
     <string name="show_focus_outline_value">Contorno de foco: %1$s</string>

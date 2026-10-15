@@ -13,7 +13,6 @@ import com.sergioasenjo.vesperhome.screensaver.ScreensaverStandbyDelay
 import com.sergioasenjo.vesperhome.screensaver.ScreensaverStartDelay
 import com.sergioasenjo.vesperhome.settings.LauncherAppearance
 import com.sergioasenjo.vesperhome.settings.LauncherSettings
-import com.sergioasenjo.vesperhome.settings.LauncherTheme
 import com.sergioasenjo.vesperhome.status.StatusBarSettings
 import com.sergioasenjo.vesperhome.wallpaper.BuiltInWallpaper
 import com.sergioasenjo.vesperhome.wallpaper.WallpaperSelection
@@ -57,7 +56,6 @@ internal data class BackupDocument(
 @Serializable
 internal data class SettingsBackup(
     val applicationSortMode: String,
-    val theme: String,
     val showAppNames: Boolean,
     val showCategoryTitles: Boolean,
     val showFocusOutline: Boolean,
@@ -218,7 +216,6 @@ internal fun BackupDocument.toSnapshot(): BackupSnapshot {
 
 private fun LauncherSettings.toBackup(): SettingsBackup = SettingsBackup(
     applicationSortMode.name,
-    appearance.theme.name,
     appearance.showAppNames,
     appearance.showCategoryTitles,
     appearance.showFocusOutline,
@@ -261,13 +258,12 @@ private fun SettingsBackup.toDomain(): LauncherSettings {
     return LauncherSettings(
         applicationSortMode = enumValueOf<ApplicationSortMode>(applicationSortMode),
         appearance = LauncherAppearance(
-            enumValueOf<LauncherTheme>(theme),
-            showAppNames,
-            showCategoryTitles,
-            showFocusOutline,
-            appCardFocusAnimations,
-            selectorTransitionAnimations,
-            keyClickSounds
+            showAppNames = showAppNames,
+            showCategoryTitles = showCategoryTitles,
+            showFocusOutline = showFocusOutline,
+            appCardFocusAnimations = appCardFocusAnimations,
+            selectorTransitionAnimations = selectorTransitionAnimations,
+            keyClickSounds = keyClickSounds
         ),
         statusBar = StatusBarSettings(
             statusAutoHide,

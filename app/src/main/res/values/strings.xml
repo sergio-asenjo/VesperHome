@@ -194,9 +194,6 @@
     <string name="restricted_device_guide_title">Restricted-device ADB guide</string>
     <string name="restricted_device_guide">Use these fallback commands only when the corresponding Android settings screen is unavailable.&#10;&#10;Home button fix:&#10;%1$s&#10;&#10;Notification access:&#10;%2$s&#10;&#10;Overlay access:&#10;%3$s&#10;&#10;System brightness access:&#10;%4$s</string>
     <string name="appearance_description">Press Select to change a setting. Press Back to return to launcher settings.</string>
-    <string name="theme_value">Theme: %1$s</string>
-    <string name="theme_dark">Dark</string>
-    <string name="theme_light">Light</string>
     <string name="show_app_names_value">App names: %1$s</string>
     <string name="show_category_titles_value">Category titles: %1$s</string>
     <string name="show_focus_outline_value">Focus outline: %1$s</string>

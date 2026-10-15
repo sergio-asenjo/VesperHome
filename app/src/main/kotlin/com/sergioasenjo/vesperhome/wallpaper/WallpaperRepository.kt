@@ -56,9 +56,9 @@ sealed interface WallpaperSelection {
 
 data class WallpaperSettings(
     val timeBasedEnabled: Boolean = false,
-    val main: WallpaperSelection = WallpaperSelection.BuiltIn(BuiltInWallpaper.MIDNIGHT),
-    val day: WallpaperSelection = WallpaperSelection.BuiltIn(BuiltInWallpaper.ARCTIC),
-    val night: WallpaperSelection = WallpaperSelection.BuiltIn(BuiltInWallpaper.MIDNIGHT),
+    val main: WallpaperSelection = WallpaperSelection.BuiltIn(BuiltInWallpaper.PITCH_BLACK),
+    val day: WallpaperSelection = WallpaperSelection.BuiltIn(BuiltInWallpaper.PITCH_BLACK),
+    val night: WallpaperSelection = WallpaperSelection.BuiltIn(BuiltInWallpaper.PITCH_BLACK),
     val revision: Long = 0L
 ) {
     fun selection(target: WallpaperTarget): WallpaperSelection = when (target) {

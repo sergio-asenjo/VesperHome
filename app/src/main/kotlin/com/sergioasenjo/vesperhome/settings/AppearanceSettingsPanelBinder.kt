@@ -5,7 +5,6 @@ import com.sergioasenjo.vesperhome.R
 import com.sergioasenjo.vesperhome.databinding.ViewAppearanceSettingsBinding
 
 enum class AppearanceSettingAction {
-    THEME,
     SHOW_APP_NAMES,
     SHOW_CATEGORY_TITLES,
     SHOW_FOCUS_OUTLINE,
@@ -19,7 +18,6 @@ class AppearanceSettingsPanelBinder(
     private val onAction: (AppearanceSettingAction) -> Unit
 ) {
     val buttons: List<MaterialButton> = listOf(
-        binding.theme,
         binding.showAppNames,
         binding.showCategoryTitles,
         binding.showFocusOutline,
@@ -29,7 +27,6 @@ class AppearanceSettingsPanelBinder(
     )
 
     init {
-        binding.theme.setOnClickListener { onAction(AppearanceSettingAction.THEME) }
         binding.showAppNames.setOnClickListener { onAction(AppearanceSettingAction.SHOW_APP_NAMES) }
         binding.showCategoryTitles.setOnClickListener { onAction(AppearanceSettingAction.SHOW_CATEGORY_TITLES) }
         binding.showFocusOutline.setOnClickListener { onAction(AppearanceSettingAction.SHOW_FOCUS_OUTLINE) }
@@ -43,10 +40,6 @@ class AppearanceSettingsPanelBinder(
     }
 
     fun render(appearance: LauncherAppearance) {
-        binding.theme.text = binding.root.context.getString(
-            R.string.theme_value,
-            binding.root.context.getString(appearance.theme.labelRes)
-        )
         binding.showAppNames.setBooleanLabel(R.string.show_app_names_value, appearance.showAppNames)
         binding.showCategoryTitles.setBooleanLabel(
             R.string.show_category_titles_value,

@@ -10,7 +10,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.material.button.MaterialButton
-import com.sergioasenjo.vesperhome.launcher.forWallpaper
 import com.sergioasenjo.vesperhome.wallpaper.WallpaperRenderer
 import com.sergioasenjo.vesperhome.wallpaper.WallpaperState
 
@@ -24,7 +23,7 @@ class ManagementScreenAppearanceRenderer(
 
     fun render(appearance: LauncherAppearance, wallpaper: WallpaperState): LauncherAppearance {
         wallpaperRenderer.render(wallpaper, appearance.palette)
-        val homeAppearance = appearance.forWallpaper(wallpaper)
+        val homeAppearance = appearance
         val palette = homeAppearance.palette
         workspaces.forEach { workspace ->
             workspace.background = GradientDrawable().apply {

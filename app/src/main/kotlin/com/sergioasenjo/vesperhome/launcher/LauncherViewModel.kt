@@ -172,10 +172,6 @@ class LauncherViewModel(
         updatePreference { launcherSettingsRepository.setApplicationSortMode(sortMode) }
     }
 
-    fun setTheme(theme: LauncherTheme) {
-        updatePreference { launcherSettingsRepository.setTheme(theme) }
-    }
-
     fun setShowAppNames(show: Boolean) {
         updatePreference { launcherSettingsRepository.setShowAppNames(show) }
     }

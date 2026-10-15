@@ -21,13 +21,7 @@ import kotlinx.coroutines.flow.map
 
 private val Context.launcherSettingsDataStore by preferencesDataStore(name = "launcher_settings")
 
-enum class LauncherTheme {
-    DARK,
-    LIGHT
-}
-
 data class LauncherAppearance(
-    val theme: LauncherTheme = LauncherTheme.DARK,
     val showAppNames: Boolean = true,
     val showCategoryTitles: Boolean = true,
     val showFocusOutline: Boolean = true,
@@ -36,10 +30,7 @@ data class LauncherAppearance(
     val keyClickSounds: Boolean = true
 ) {
     val palette: LauncherPalette
-        get() = when (theme) {
-            LauncherTheme.DARK -> LauncherPalette.DARK
-            LauncherTheme.LIGHT -> LauncherPalette.LIGHT
-        }
+        get() = LauncherPalette.DARK
 }
 
 data class LauncherPalette(
@@ -57,30 +48,17 @@ data class LauncherPalette(
 ) {
     companion object {
         val DARK = LauncherPalette(
-            backgroundStart = 0xFF191436.toInt(),
-            backgroundCenter = 0xFF0C0D1A.toInt(),
-            backgroundEnd = 0xFF05060B.toInt(),
+            backgroundStart = 0xFF000000.toInt(),
+            backgroundCenter = 0xFF000000.toInt(),
+            backgroundEnd = 0xFF000000.toInt(),
             primaryText = 0xFFF4F6FE.toInt(),
             secondaryText = 0xFF9BA3B8.toInt(),
-            surface = 0x66070A12,
+            surface = 0xFF000000.toInt(),
             focusedSurface = 0xFF7C4DFF.toInt(),
             focusedText = 0xFFFFFFFF.toInt(),
             focus = 0xFFB9A5FF.toInt(),
             stroke = 0x24FFFFFF,
-            panel = 0xFA0E0B1C.toInt()
-        )
-        val LIGHT = LauncherPalette(
-            backgroundStart = 0xFFEFF2F9.toInt(),
-            backgroundCenter = 0xFFDFE5F1.toInt(),
-            backgroundEnd = 0xFFCBD2E4.toInt(),
-            primaryText = 0xFF191D2E.toInt(),
-            secondaryText = 0xFF5A6379.toInt(),
-            surface = 0x24191D2E,
-            focusedSurface = 0xFF5F35E6.toInt(),
-            focusedText = 0xFFFFFFFF.toInt(),
-            focus = 0xFF5F35E6.toInt(),
-            stroke = 0x2E29304E,
-            panel = 0xFAF2F3FA.toInt()
+            panel = 0xFF000000.toInt()
         )
     }
 }
@@ -98,7 +76,6 @@ class LauncherSettingsRepository(private val context: Context) {
         LauncherSettings(
             applicationSortMode = preferences.enumValue(APPLICATION_SORT_MODE, ApplicationSortMode.MANUAL),
             appearance = LauncherAppearance(
-                theme = preferences.enumValue(THEME, LauncherTheme.DARK),
                 showAppNames = preferences[SHOW_APP_NAMES] ?: true,
                 showCategoryTitles = preferences[SHOW_CATEGORY_TITLES] ?: true,
                 showFocusOutline = preferences[SHOW_FOCUS_OUTLINE] ?: true,
@@ -143,10 +120,6 @@ class LauncherSettingsRepository(private val context: Context) {
 
     suspend fun setApplicationSortMode(sortMode: ApplicationSortMode) {
         setEnum(APPLICATION_SORT_MODE, sortMode)
-    }
-
-    suspend fun setTheme(theme: LauncherTheme) {
-        setEnum(THEME, theme)
     }
 
     suspend fun setShowAppNames(show: Boolean) {
@@ -299,7 +272,6 @@ class LauncherSettingsRepository(private val context: Context) {
 
     private companion object {
         val APPLICATION_SORT_MODE = stringPreferencesKey("application_sort_mode")
-        val THEME = stringPreferencesKey("theme")
         val SHOW_APP_NAMES = booleanPreferencesKey("show_app_names")
         val SHOW_CATEGORY_TITLES = booleanPreferencesKey("show_category_titles")
         val SHOW_FOCUS_OUTLINE = booleanPreferencesKey("show_focus_outline")

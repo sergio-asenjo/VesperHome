@@ -214,7 +214,11 @@ class LauncherSettingsPanel(
         binding.brightnessPage.root.visibility = View.GONE
         binding.appearancePage.root.visibility = View.VISIBLE
         binding.appearancePage.root.scrollTo(0, 0)
-        if (requestFocus) binding.appearancePage.theme.post { binding.appearancePage.theme.requestFocus() }
+        if (requestFocus) {
+            binding.appearancePage.showAppNames.post {
+                binding.appearancePage.showAppNames.requestFocus()
+            }
+        }
     }
 
     private fun showMainPage(requestFocus: Boolean = true) {
@@ -325,7 +329,7 @@ class LauncherSettingsPanel(
 
     private fun requestInitialFocus() {
         val firstAction = when {
-            isAppearancePageVisible() -> binding.appearancePage.theme
+            isAppearancePageVisible() -> binding.appearancePage.showAppNames
 
             isWallpaperPageVisible() -> binding.wallpaperPage.timeBasedWallpaper
 
