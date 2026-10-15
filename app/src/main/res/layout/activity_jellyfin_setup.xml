@@ -103,44 +103,6 @@
                 app:iconSize="20dp"
                 app:iconTint="@color/action_button_text" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/showSonarr"
-                android:layout_width="match_parent"
-                android:layout_height="58dp"
-                android:layout_marginTop="7dp"
-                android:backgroundTint="@color/media_service_nav_background"
-                android:gravity="start|center_vertical"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:paddingHorizontal="16dp"
-                android:text="@string/sonarr"
-                android:textColor="@color/action_button_text"
-                android:textSize="14sp"
-                app:cornerRadius="11dp"
-                app:icon="@drawable/ic_tv_series"
-                app:iconPadding="12dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/action_button_text" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/showRadarr"
-                android:layout_width="match_parent"
-                android:layout_height="58dp"
-                android:layout_marginTop="7dp"
-                android:backgroundTint="@color/media_service_nav_background"
-                android:gravity="start|center_vertical"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:paddingHorizontal="16dp"
-                android:text="@string/radarr"
-                android:textColor="@color/action_button_text"
-                android:textSize="14sp"
-                app:cornerRadius="11dp"
-                app:icon="@drawable/ic_movie"
-                app:iconPadding="12dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/action_button_text" />
-
             <Space
                 android:layout_width="1dp"
                 android:layout_height="0dp"
@@ -168,18 +130,6 @@
                 layout="@layout/view_jellyfin_service"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-
-            <com.sergioasenjo.vesperhome.upcoming.MediaServiceFormView
-                android:id="@+id/sonarrPage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
-
-            <com.sergioasenjo.vesperhome.upcoming.MediaServiceFormView
-                android:id="@+id/radarrPage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
 
         </FrameLayout>
 

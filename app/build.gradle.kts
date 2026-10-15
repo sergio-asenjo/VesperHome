@@ -22,9 +22,6 @@ val releaseSigningAvailable = releaseKeystore.isFile && releasePasswordFile.isFi
 val releaseVersionName = providers.environmentVariable("VESPER_VERSION_NAME").orNull
 val releaseVersionCode = providers.environmentVariable("VESPER_VERSION_CODE").orNull?.toInt()
 
-fun localBuildConfigValue(name: String): String =
-    "\"${localProperties.getProperty(name).orEmpty().replace("\\", "\\\\").replace("\"", "\\\"")}\""
-
 android {
     namespace = "com.sergioasenjo.vesperhome"
     compileSdk = 36
@@ -46,20 +43,12 @@ android {
         targetSdk = 36
         versionCode = releaseVersionCode ?: 1
         versionName = releaseVersionName ?: "1.0.0"
-        buildConfigField("String", "SONARR_URL", "\"\"")
-        buildConfigField("String", "SONARR_API_KEY", "\"\"")
-        buildConfigField("String", "RADARR_URL", "\"\"")
-        buildConfigField("String", "RADARR_API_KEY", "\"\"")
     }
 
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            buildConfigField("String", "SONARR_URL", localBuildConfigValue("SONARR_URL"))
-            buildConfigField("String", "SONARR_API_KEY", localBuildConfigValue("SONARR_API_KEY"))
-            buildConfigField("String", "RADARR_URL", localBuildConfigValue("RADARR_URL"))
-            buildConfigField("String", "RADARR_API_KEY", localBuildConfigValue("RADARR_API_KEY"))
         }
         release {
             signingConfigs.findByName("release")?.let { signingConfig = it }

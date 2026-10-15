@@ -138,7 +138,6 @@ class LauncherActivity : AppCompatActivity() {
             activity = this,
             binding = binding,
             networkStatusRepository = container.networkStatusRepository,
-            upcomingPreferencesRepository = container.upcomingPreferencesRepository,
             currentSettings = { viewModel.uiState.value.statusBar },
             setAutoHide = viewModel::setStatusBarAutoHide,
             setShowDate = viewModel::setStatusBarShowDate,

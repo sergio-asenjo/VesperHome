@@ -3,18 +3,17 @@ package com.sergioasenjo.vesperhome.data
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.sergioasenjo.vesperhome.media.TrackedMediaDao
-import com.sergioasenjo.vesperhome.media.TrackedMediaEntity
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [
         AppPreferenceEntity::class,
         CategoryEntity::class,
         CategoryAppEntity::class,
-        SpacerEntity::class,
-        TrackedMediaEntity::class
+        SpacerEntity::class
     ],
-    version = 6,
+    version = 7,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -27,6 +26,10 @@ abstract class LauncherDatabase : RoomDatabase() {
     abstract fun appPreferenceDao(): AppPreferenceDao
 
     abstract fun categoryDao(): CategoryDao
+}
 
-    abstract fun trackedMediaDao(): TrackedMediaDao
+val DROP_TRACKED_MEDIA_MIGRATION = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS tracked_media")
+    }
 }
